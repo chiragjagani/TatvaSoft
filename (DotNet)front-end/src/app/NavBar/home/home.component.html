@@ -1,0 +1,561 @@
+<div>
+  <app-navbar></app-navbar>
+</div>
+<header>
+  <section class="hero">
+    <div class="left">
+      <h1>
+        Welcome to <br />
+        <span>Supportify</span>
+      </h1>
+      <h2>
+        Your Virtual <br />
+        Community Hub
+      </h2>
+      <p>
+        Connect, share, and grow with like-minded individuals. Join our supportive
+        community and explore a world of knowledge and empowerment.
+      </p>
+      <a  class="btn btn-primary" style="color:white" id="joinCommunityBtn" (click)="scrollToExploreSection()">Join the Community</a>
+    </div>
+    <div class="right">
+      <img src="https://i.ibb.co/V9R2NTX/2151493274.jpg" alt="">
+    </div>
+  </section>
+</header>
+<div class="container-fluid" id="exploremission">
+  <div class="row justify-content-center my-5">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-center mb-4">
+        <h2 style="color: black">Explore <span>Missions</span></h2>
+      </div>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="flex-grow-1 me-3">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search missions..." [(ngModel)]="searchParam" />
+            <button class="btn btn-primary" type="button">
+              <i class="fa fa-search"></i>
+            </button>
+          </div>
+        </div>
+        <div class="d-flex align-items-center">
+          <div class="me-3">
+            <select class="form-select" (change)="SortingList($event)">
+              <option value="">Sort by</option>
+              <option value="Newest">Newest</option>
+              <option value="Oldest">Oldest</option>
+              <option value="Lowest available seats">Lowest available seats</option>
+              <option value="Highest available seats">Highest available seats</option>
+              <option value="My favourites">My favourites</option>
+              <option value="Registration deadline">Registration deadline</option>
+            </select>
+          </div>
+          <div class="btn-group" role="group">
+            <button type="button" class="btn btn-outline-secondary" (click)="OnChangeGrid()">
+              <i class="fa fa-th"></i>
+            </button>
+            <button type="button" class="btn btn-outline-secondary" (click)="OnChangeList()">
+              <i class="fa fa-list"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div *ngIf="view == 'grid'" class="row row-cols-1 row-cols-md-3 g-4">
+        <ng-container
+          *ngIf="
+            missionList
+              | search : searchParam
+              | paginate
+                : {
+                    itemsPerPage: missionPerPages,
+                    currentPage: page,
+                    totalItems: totalMission
+                  } as result
+          "
+        >
+          <div class="col" *ngFor="let item of result">
+            <div class="card h-100">
+              <div class="card-img-top position-relative">
+                <img
+                  src="{{ item.missionImages }}"
+                  class="card-img-top"
+                  alt="Mission Image"
+                  onerror="this.src='assets/NoImg.png'"
+                />
+                <span
+                  class="badge bg-danger position-absolute top-0 start-0 mt-2 ms-2"
+                  *ngIf="item.missionStatus == 'Closed'"
+                  >CLOSED</span
+                >
+                <span
+                  class="badge bg-info position-absolute top-0 start-0 mt-2 ms-2"
+                  *ngIf="item.missionApplyStatus == 'Applied'"
+                  >APPLIED</span
+                >
+                <span
+                  class="badge bg-warning position-absolute top-0 start-0 mt-2 ms-2"
+                  *ngIf="item.missionApproveStatus === 'Approved'"
+                  >APPROVED</span
+                >
+                <span
+                  class="badge bg-success position-absolute top-0 start-0 mt-2 ms-2"
+                  *ngIf="
+                    item.missionStatus != 'Closed' &&
+                    item.missionApplyStatus != 'Applied' &&
+                    item.missionApproveStatus !== 'Approved'
+                  "
+                  >NEW</span
+                >
+              </div>
+              <div class="card-body">
+                <h5 class="card-title">{{ item.missionTitle }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                  {{ item.missionDescription }}
+                </h6>
+                <p class="card-text">{{ item.missionOrganisationDetail }}</p>
+                <p class="card-text">
+                  <i class="fa fa-map-marker me-2"></i
+                  >{{ item.countryName }}
+                </p>
+                <div class="border-top pt-3">
+                  <p class="mb-1">
+                    <i class="fa fa-calendar-alt me-2"></i><span class="fw-bold"> From </span>
+                    {{ item.startDate | date : "dd/MM/yyyy" }} <span class="fw-bold"> until </span>
+                    {{ item.endDate | date : "dd/MM/yyyy" }}
+                  </p>
+                </div>
+              </div>
+              <div
+                class="card-footer d-flex justify-content-between align-items-center"
+              >
+                <div>
+                  <i class="fa fa-user-circle me-2"></i
+                  ><span class="fw-bold"> {{ item.totalSheets }} </span> Seats left
+                </div>
+                <div>
+                  <i class="fa fa-clock me-2"></i
+                  >{{
+                    item.registrationDeadLine | date : "dd/MM/yyyy"
+                  }}
+                  Deadline
+                </div>
+              </div>
+              <div class="card-footer d-grid">
+                <button
+                  class="btn btn-primary"
+                  type="submit"
+                  *ngIf="item.missionApplyStatus == 'Apply'"
+                  (click)="CheckUserLoginOrNot(item.id)"
+                  [disabled]="item.missionStatus == 'Closed'"
+                >
+                  <i class="fa fa-arrow-right me-2"></i>Apply
+                </button>
+                <button
+                  class="btn btn-secondary"
+                  type="submit"
+                  *ngIf="
+                    item.missionApplyStatus === 'Applied' &&
+                    item.missionApproveStatus !== 'Approved'
+                  "
+                  [disabled]="item.missionApplyStatus === 'Applied'"
+                >
+                  Applied
+                </button>
+                <button
+                  class="btn btn-success"
+                  type="submit"
+                  *ngIf="item.missionApproveStatus === 'Approved'"
+                  [disabled]="item.missionApproveStatus === 'Approved'"
+                >
+                  Approved
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 text-center" *ngIf="result.length === 0">
+            <p class="text-secondary"><b>No mission Found</b></p>
+          </div>
+          <div class="mt-4" *ngIf="result.length != 0">
+            <pagination-controls
+              previousLabel=""
+              nextLabel=""
+              (pageChange)="page = $event"
+            ></pagination-controls>
+          </div>
+        </ng-container>
+      </div>
+      <div class="row" *ngIf="view == 'list'">
+        <ng-container
+          *ngIf="
+            missionList
+              | search : searchParam
+              | paginate
+                : {
+                    itemsPerPage: listmissionPerPages,
+                    currentPage: page,
+                    totalItems: totalMission
+                  } as result
+          "
+        >
+          <div class="col-12" *ngFor="let item of result">
+            <div class="card mb-3">
+              <div class="row g-0">
+                <div class="col-md-3">
+                  <img
+                    src="{{ item.missionImages }}"
+                    class="img-fluid rounded-start"
+                    alt="Mission Image"
+                    onerror="this.src='assets/NoImg.png'"
+                  />
+                  <span
+                    class="badge bg-danger position-absolute top-0 start-0 mt-2 ms-2"
+                    *ngIf="item.missionStatus == 'Closed'"
+                    >CLOSED</span
+                  >
+                  <span
+                    class="badge bg-info position-absolute top-0 start-0 mt-2 ms-2"
+                    *ngIf="item.missionApplyStatus == 'Applied'"
+                    >APPLIED</span
+                  >
+                  <span
+                    class="badge bg-warning position-absolute top-0 start-0 mt-2 ms-2"
+                    *ngIf="item.missionApproveStatus === 'Approved'"
+                    >APPROVED</span
+                  >
+                  <span
+                    class="badge bg-success position-absolute top-0 start-0 mt-2 ms-2"
+                    *ngIf="
+                      item.missionStatus != 'Closed' &&
+                      item.missionApplyStatus != 'Applied' &&
+                      item.missionApproveStatus !== 'Approved'
+                    "
+                    >NEW</span
+                  >
+                </div>
+                <div class="col-md-9">
+                  <div class="card-body">
+                    <h5 class="card-title">{{ item.missionTitle }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">
+                      {{ item.missionDescription }}
+                    </h6>
+               
+                    <div class="d-flex mb-3">
+                      <div class="me-3">
+                        <i class="fa fa-map-marker me-2"></i
+                        >{{ item.cityName }}
+                      </div>
+                      <div class="me-3">
+                        <i class="fa fa-globe me-2"></i
+                        >{{ item.countryName }}
+                      </div>
+                      <div class="me-3">
+                        <i class="fa fa-building me-2"></i
+                        >Organization
+                      </div>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                      <div class="me-4">
+                        <i class="fa fa-user-circle me-2"></i
+                        >{{ item.totalSheets }} Seats left
+                      </div>
+                      <div class="me-4">
+                        <i class="fa fa-calendar-alt me-2"></i
+                        >{{
+                          item.registrationDeadLine | date : "dd/MM/yyyy"
+                        }}
+                        Deadline
+                      </div>
+                      <div class="me-4">
+                        <i class="fa fa-calendar-wrench me-2"></i><span class="fw-bold"> From </span>
+                        {{ item.startDate | date : "dd/MM/yyyy" }} <span class="fw-bold"> until </span>
+                        {{ item.endDate | date : "dd/MM/yyyy" }}
+                      </div>
+                     
+                    </div>
+                    <div class="d-grid">
+                      <button
+                        class="btn btn-primary"
+                        type="submit"
+                        *ngIf="item.missionApplyStatus == 'Apply'"
+                        (click)="CheckUserLoginOrNot(item.id)"
+                        [disabled]="item.missionStatus == 'Closed'"
+                      >
+                        <i class="fa fa-arrow-right me-2"></i>Apply
+                      </button>
+                      <button
+                        class="btn btn-secondary"
+                        type="submit"
+                        *ngIf="
+                          item.missionApplyStatus === 'Applied' &&
+                          item.missionApproveStatus !== 'Approved'
+                        "
+                        [disabled]="item.missionApplyStatus === 'Applied'"
+                      >
+                        Applied
+                      </button>
+                      <button
+                        class="btn btn-success"
+                        type="submit"
+                        *ngIf="item.missionApproveStatus === 'Approved'"
+                        [disabled]="item.missionApproveStatus === 'Approved'"
+                      >
+                        Approved
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 text-center" *ngIf="result.length === 0">
+            <p class="text-secondary"><b>No mission Found</b></p>
+          </div>
+          <div class="mt-4" *ngIf="result.length != 0">
+            <pagination-controls
+              classpreviousLabel=""
+              nextLabel=""
+              (pageChange)="page = $event"
+            ></pagination-controls>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="site__wrapper" style="margin-top: 40px">
+  <h2 style="text-align: center; margin-bottom: 25px">Latest Updates</h2>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__image">
+        <img src="https://unsplash.it/400/608?image=123" alt="" />
+
+        <div class="card__overlay card__overlay--indigo">
+          <div class="card__overlay-content">
+            <ul class="card__meta">
+              <li>
+                <a href="#0"><i class="fa fa-tag"></i> Biodiversity</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-clock-o"></i> 2 min ago</a>
+              </li>
+            </ul>
+
+            <a href="#0" class="card__title"
+              >Exploring Biodiversity in Rainforests</a
+            >
+
+            <ul class="card__meta card__meta--last">
+              <li>
+                <a href="#0"><i class="fa fa-user"></i> NatureLover</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-facebook-square"></i> Share</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__image">
+        <img src="https://unsplash.it/400/300?image=100" alt="" />
+
+        <div class="card__overlay card__overlay--blue">
+          <div class="card__overlay-content">
+            <ul class="card__meta">
+              <li>
+                <a href="#0"><i class="fa fa-tag"></i> Mental Health</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-clock-o"></i> 2 days ago</a>
+              </li>
+            </ul>
+
+            <a href="#0" class="card__title"
+              >Understanding the Importance of Mental Health</a
+            >
+
+            <ul class="card__meta card__meta--last">
+              <li>
+                <a href="#0"><i class="fa fa-user"></i> WellnessGuru</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-facebook-square"></i> Share</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__image">
+        <img src="https://unsplash.it/400/300?image=200" alt="" />
+
+        <div class="card__overlay card__overlay--indigo">
+          <div class="card__overlay-content">
+            <ul class="card__meta">
+              <li>
+                <a href="#0"><i class="fa fa-tag"></i> Ecosystem</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-clock-o"></i> 2 days ago</a>
+              </li>
+            </ul>
+
+            <a href="#0" class="card__title"
+              >The Fragile Balance of Ecosystems</a
+            >
+
+            <ul class="card__meta card__meta--last">
+              <li>
+                <a href="#0"><i class="fa fa-user"></i> EcoWarrior</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-facebook-square"></i> Share</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__image">
+        <img src="https://unsplash.it/400/300?image=300" alt="" />
+
+        <div class="card__overlay card__overlay--indigo">
+          <div class="card__overlay-content">
+            <ul class="card__meta">
+              <li>
+                <a href="#0"><i class="fa fa-tag"></i> Sustainability</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-clock-o"></i> 2 days ago</a>
+              </li>
+            </ul>
+
+            <a href="#0" class="card__title"
+              >Promoting Sustainability: A Collective Effort</a
+            >
+
+            <ul class="card__meta card__meta--last">
+              <li>
+                <a href="#0"><i class="fa fa-user"></i> GreenActivist</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-facebook-square"></i> Share</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card">
+      <div class="card__image">
+        <img src="https://unsplash.it/400/300?image=400" alt="" />
+
+        <div class="card__overlay card__overlay--blue">
+          <div class="card__overlay-content">
+            <ul class="card__meta">
+              <li>
+                <a href="#0"
+                  ><i class="fa fa-tag"></i> Environmental Conservation</a
+                >
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-clock-o"></i> 2 days ago</a>
+              </li>
+            </ul>
+
+            <a href="#0" class="card__title"
+              >Taking Action for Environmental Conservation</a
+            >
+
+            <ul class="card__meta card__meta--last">
+              <li>
+                <a href="#0"><i class="fa fa-user"></i> EarthGuardian</a>
+              </li>
+              <li>
+                <a href="#0"><i class="fa fa-facebook-square"></i> Share</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div>
+  <app-footer></app-footer>
+</div>
+
+<!-- Modal -->
+<div
+  class="modal fade"
+  id="applyMissionModel"
+  tabindex="-1"
+  aria-labelledby="applyMissionModalLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="applyMissionModalLabel">Apply Mission</h5>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+          (click)="CloseMissionApplyModal()"
+        ></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Mission Title:</label>
+            <p>{{ missionData.missionTitle }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">User Name:</label>
+            <p>{{ loginUserName }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Applied Date:</label>
+            <p>{{ appliedDate }}</p>
+          </div>
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Sheet:</label>
+            <p>1</p>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button
+          type="button"
+          class="btn btn-secondary"
+          data-bs-dismiss="modal"
+          (click)="CloseMissionApplyModal()"
+        >
+          Cancel
+        </button>
+        <button type="submit" class="btn btn-primary" (click)="ApplyMission()">
+          Submit
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
