@@ -6,25 +6,6 @@ export class CMS{
   status:string='';
 }
 
-// mission.model.ts
-export interface MissionDto {
-  id: number;
-  countryId: number;
-  cityId: number;
-  missionDescription: string;
-  totalSheets?: number;
-  startDate: Date;
-  endDate: Date;
-  missionImages?: string;
-  missionSkillId?: string;
-  missionThemeId?: any;
-  missionTitle: string;
-  missionOrganisationName: string | null;
-  missionOrganisationDetail: string | null;
-  countryName: string | null;
-  cityName: string | null;
-  // Add any other properties here
-}
 
 export class Mission{
   id:number=0;

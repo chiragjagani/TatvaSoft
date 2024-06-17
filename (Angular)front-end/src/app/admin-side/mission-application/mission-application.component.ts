@@ -26,9 +26,9 @@ export class MissionApplicationComponent implements OnInit {
 
   FetchMissionApplicationList(){
     this.service.MissionApplicationList().subscribe((data:any)=>{
-      if(data)
+      if(data.result == 1)
       {
-          this.applicationList = data;
+          this.applicationList = data.data;
       }
       else
       {
@@ -37,38 +37,37 @@ export class MissionApplicationComponent implements OnInit {
     },err=>this.toast.error({detail:"ERROR",summary:err.message,duration:3000}));
   }
 
-  ApproveMissionApplication(id: number) {
-    this.service.MissionApplicationApprove(id).subscribe(
+  ApproveMissionApplication(value: any) {
+    this.service.MissionApplicationApprove(value).subscribe(
       (data: any) => {
-        if (data.success) {
-          this.toast.success({ detail: "SUCCESS", summary: data.message, duration: 3000 });
+        if (data.result == 1) {
+          this.toast.success({detail:"SUCCESS",summary:data.data,duration:3000});
           setTimeout(() => {
-            this.FetchMissionApplicationList();
+            window.location.reload();
           }, 2000);
         } else {
-          this.toast.error({ detail: "ERROR", summary: data.message, duration: 3000 });
+          this.toast.error({detail:"ERROR",summary:data.message,duration:3000});
         }
       },
       (err) => {
-        this.toast.error({ detail: "ERROR", summary: err.message || "Server error", duration: 3000 });
+        this.toast.error({detail:"ERROR",summary:err.message,duration:3000});
       }
     );
   }
-  
-  DeleteMissionApplication(id: number) {
-    this.service.MissionApplicationDelete(id).subscribe(
+  DeleteMissionApplication(value: any) {
+    this.service.MissionApplicationDelete(value).subscribe(
       (data: any) => {
-        if (data.success) {
-          this.toast.success({ detail: "SUCCESS", summary: data.message, duration: 3000 });
+        if (data.result == 1) {
+          this.toast.success({detail:"SUCCESS",summary:data.data,duration:3000});
           setTimeout(() => {
-            this.FetchMissionApplicationList();
+            window.location.reload();
           }, 2000);
         } else {
-          this.toast.error({ detail: "ERROR", summary: data.message, duration: 3000 });
+          this.toast.error({detail:"ERROR",summary:data.message,duration:3000});
         }
       },
       (err) => {
-        this.toast.error({ detail: "ERROR", summary: err.message || "Server error", duration: 3000 });
+        this.toast.error({detail:"ERROR",summary:err.message,duration:3000});
       }
     );
   }

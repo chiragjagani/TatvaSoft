@@ -1,49 +1,35 @@
-.sidebar {
+.sidebar{
   width: 300px;
   height: 100%;
-  background: #3498db; /* Blue theme */
+  background: #f88634;
   padding: 30px 0px;
   position: fixed;
 }
-
-.sidebar p {
+.sidebar p{
   color: #fff;
   text-transform: uppercase;
-  font-size: 20px; /* Increased font size */
-  font-weight: bold; /* Increased font weight for better visibility */
-  margin-left: 30px; /* Adjusted margin for better alignment */
-  margin-bottom: 20px; /* Increased bottom margin for better separation */
-}
+  font-size: 15px;
+  font-weight: 400;
+  margin-left: 45px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 
-.sidebar ul li {
+}
+.sidebar ul li{
   padding: 15px;
   list-style-type: none;
   padding-left: 0px;
   padding-right: 32px;
 }
-
-.sidebar ul li a {
+.sidebar ul li a{
   color: white;
   display: block;
   font-size: 18px;
   text-decoration: none;
-  transition: all 0.3s ease; /* Added smooth transition effect */
 }
-
-.sidebar ul li a .fa {
+.sidebar ul li a .fa{
   margin-left: 5%;
-  width: 20px; /* Adjusted icon size for better proportion */
-  height: 40px; /* Adjusted icon size for better proportion */
-}
-
-.sidebar ul li a:hover {
-  padding-top: 12px;
-  height: 54px;
-  padding-left: 0px;
-  text-decoration: none;
-  background-color: #ffffff;
-  border-radius: 8px;
-  color: #3498db !important; /* Blue color for active link */
+  width: 10%;
 }
 
 .active {
@@ -52,11 +38,9 @@
   padding-left: 0px;
   text-decoration: none;
   background-color: #ffffff;
-  border-radius: 8px;
-  color: #3498db !important; /* Blue color for active link */
+  color: #f88634 !important;
 }
-
-i {
+i{
   width: 20px;
-  height: 20px;
+  height: 22px;
 }

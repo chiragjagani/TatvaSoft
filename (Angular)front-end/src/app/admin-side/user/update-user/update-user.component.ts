@@ -28,7 +28,6 @@ export class UpdateUserComponent implements OnInit {
       lastName: ['', Validators.required],
       phoneNumber: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(10)]],
       emailAddress: ['', [Validators.required, Validators.email]],
-      userType: ['', Validators.required], 
       password: ['', [Validators.required, Validators.minLength(5), Validators.maxLength(10)]],
       confirmPassword: ['', Validators.required]
     });
@@ -37,7 +36,6 @@ export class UpdateUserComponent implements OnInit {
     this.userId = this.activateRoute.snapshot.paramMap.get('Id');
     if (this.userId) {
       // Call method to fetch user data by ID
-      console.log("Userid = " , this.userId)
       this.FetchDetail(this.userId);
     }
   }
@@ -62,9 +60,6 @@ export class UpdateUserComponent implements OnInit {
   {
     return this.updateForm.get('emailAddress') as FormControl;
   }
-  get userType() {
-    return this.updateForm.get('userType') as FormControl;
-  }
   get password()
   {
     return this.updateForm.get('password') as FormControl;
@@ -77,17 +72,12 @@ export class UpdateUserComponent implements OnInit {
 
   FetchDetail(id:any)
   {
-    console.log("Id received for fetching : " , id);
     this.service.GetUserById(id).subscribe((data:any)=>{
-      console.log("After Get user");
-      console.log(data)
-          this.updateData = data.result;
-          console.log("Update Data : " , this.updateData)
+          this.updateData = data.data;
           this.updateForm = this.fb.group({
               id:[this.updateData.id],
               firstName:[this.updateData.firstName,Validators.compose([Validators.required])],
               lastName:[this.updateData.lastName,Validators.compose([Validators.required])],
-              userType:[this.updateData.userType,Validators.compose([Validators.required])],
               phoneNumber:[this.updateData.phoneNumber,Validators.compose([Validators.required,Validators.minLength(10),Validators.maxLength(10)])],
               emailAddress:[this.updateData.emailAddress,Validators.compose([Validators.required,Validators.email])],
               password:[this.updateData.password,Validators.compose([Validators.required,Validators.minLength(5),Validators.maxLength(10)])],
@@ -101,12 +91,11 @@ export class UpdateUserComponent implements OnInit {
     if (this.updateForm.valid) {
       let updatedUserData = this.updateForm.value;
        this.service.UpdateUser(updatedUserData).subscribe((data: any) => {
-        if(data)
+        if(data.result == 1)
           {
-            console.log(data)
-            this.toast.success({detail:"SUCCESS",summary:data.message,duration:3000});
+            this.toast.success({detail:"SUCCESS",summary:data.data,duration:3000});
             setTimeout(() => {
-              this.router.navigate(['admin/userPage']);
+              this.router.navigate(['userPage']);
             }, 1000);
           } else
           {

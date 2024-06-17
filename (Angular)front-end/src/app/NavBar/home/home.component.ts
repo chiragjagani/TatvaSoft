@@ -9,9 +9,7 @@ import dateFormat from 'dateformat';
 import { Mission } from 'src/app/model/cms.model';
 import * as moment from 'moment';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
 declare var window:any;
-
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -40,9 +38,6 @@ export class HomeComponent implements OnInit {
   public form: FormGroup;
   rating3:any;
   missionid:any;
-
-  @ViewChild('joinCommunityBtn') joinCommunityBtnRef!: ElementRef;
-
   constructor(private service:ClientService,private toast:NgToastService,private router:Router,public commonservice:CommonService,private adminservice:AdminloginService,
     public datepipe: DatePipe,private fb: FormBuilder) {
 
@@ -72,11 +67,11 @@ export class HomeComponent implements OnInit {
   }
   AllMissionList(){
     this.service.MissionList(this.loginUserId).subscribe((data:any) => {
-      if(data)
+      if(data.result == 1)
       {
-        this.missionList = data;
+        this.missionList = data.data;
         this.missionList = this.missionList.map(x=> {
-          var missionimg=x.missionImages ?  x.missionImages : 'assets/NoImg.png';
+          var missionimg=x.missionImages ? this.service.imageUrl + '/' + x.missionImages : 'assets/NoImg.png';
           this.rating3 =  x.rating;
           return {
             id:x.id,
@@ -102,7 +97,7 @@ export class HomeComponent implements OnInit {
             missionDeadLineStatus:x.missionDeadLineStatus,
           }
         });
-        this.totalMission = data.length;
+        this.totalMission = data.data.length;
       }
       else{
         this.toast.error({detail:"ERROR",summary:data.message,duration:3000});
@@ -213,31 +208,29 @@ export class HomeComponent implements OnInit {
       this.router.navigate([`volunteeringMission/${missionId}`]);
     }
   }
-  ApplyMission() {
-    let value = {
-      missionId: this.missionData.id,
-      userId: this.loginUserId,
-      appliedDate: moment().format("yyyy-MM-DDTHH:mm:ssZ"),
-      status: false,
-      sheet: 1
+  ApplyMission()
+  {
+    let value={
+      missionId:this.missionData.id,
+      userId:this.loginUserId,
+      appliedDate:moment().format("yyyy-MM-DDTHH:mm:ssZ"),
+     status:false,
+      sheet:1
     };
-  
-    this.service.ApplyMission(value).subscribe(
-      (data: any) => {
-        if (data.success) { // Check if the response indicates success
-          this.toast.success({ detail: "SUCCESS", summary: data.message, duration: 3000 });
-          setTimeout(() => {
-            this.missionData.totalSheets = this.missionData.totalSheets - 1;
-            this.AllMissionList();
-          }, 1000);
-        } else {
-          this.toast.error({ detail: "ERROR", summary: data.message, duration: 3000 });
-        }
-      },
-      (err) => {
-        this.toast.error({ detail: "ERROR", summary: err.message || "Server error", duration: 3000 });
-      }
-    );
+      this.service.ApplyMission(value).subscribe((data:any)=>{
+          if(data.result == 1)
+          {
+            this.toast.success({detail:"SUCCESS",summary:data.data});
+            setTimeout(() => {
+              this.missionData.totalSheets = this.missionData.totalSheets - 1;
+            }, 1000);
+            window.location.reload();
+          }
+          else
+          {
+            this.toast.error({detail:"ERROR",summary:data.message,duration:3000});
+          }
+      },err=>this.toast.error({detail:"ERROR",summary:err.message,duration:3000}))
   }
 
   getUserList(){
@@ -267,12 +260,5 @@ export class HomeComponent implements OnInit {
           }
         })
       }
-  }
-
-  scrollToExploreSection(): void {
-    const exploreMissionElement = document.getElementById('exploremission');
-    if (exploreMissionElement) {
-      exploreMissionElement.scrollIntoView({ behavior: 'smooth' });
-    }
   }
 }

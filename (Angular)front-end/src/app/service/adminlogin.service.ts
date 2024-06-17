@@ -3,37 +3,45 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { user } from '../model/user.model';
 import { JwtHelperService } from '@auth0/angular-jwt';
-
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdminloginService {
-  baseUrl: string = 'https://localhost:7178/api/v1';
-  apiUrl : string = 'https://localhost:7178/api/v1/Auth';
-  imageUrl: string = 'http://localhost:56577';
+  apiUrl: string = 'http://localhost:5140/api/Login';
+  imageUrl: string = 'http://localhost:5140';
+
   currentUser: BehaviorSubject<any> = new BehaviorSubject(null);
   currentUserName: BehaviorSubject<any> = new BehaviorSubject(null);
   currentUserData: any;
-  jwtHelperService = new JwtHelperService();
+  public userPayLoad: any;
+  jwthelperService = new JwtHelperService();
 
-  constructor(public http: HttpClient) {}
+  constructor(public http: HttpClient) {
+    this.userPayLoad = this.decodedToken();
+  }
 
-  registerUser(registerData: any): Observable<any> {
-    const url = `${this.baseUrl}/UserDetails/registerUser`;
-    return this.http.post(url, registerData);
+  registerUser(user: user) {
+    return this.http.post(`${this.apiUrl}/Register`, user, {
+      responseType: 'json',
+    });
   }
 
   GetUserById(id: number): Observable<user[]> {
-    console.log("Id received in getuser function is : ", id);
-    return this.http.get<user[]>(`${this.baseUrl}/UserDetails/getUserById/${id}`);
+    return this.http.get<user[]>(`${this.apiUrl}/GetUserById/${id}`);
   }
-
   UpdateUser(data: user) {
-    return this.http.put(`${this.baseUrl}/UserDetails/updateUser`, data);
+    return this.http.post(`${this.apiUrl}/UpdateUser`, data);
   }
 
   loginUser(loginInfo: Array<string>) {
-    return this.http.post(`${this.apiUrl}/login`, { EmailAddress: loginInfo[0], Password: loginInfo[1] }, { responseType: 'json' });
+    return this.http.post(
+      `${this.apiUrl}/LoginUser`,
+      {
+        EmailAddress: loginInfo[0],
+        Password: loginInfo[1],
+      },
+      { responseType: 'json' }
+    );
   }
 
   ForgotPasswordEmailCheck(data: any) {
@@ -41,7 +49,9 @@ export class AdminloginService {
   }
 
   ResetPassword(data: any) {
-    return this.http.post(`${this.apiUrl}/ResetPassword`, data, { responseType: 'text' });
+    return this.http.post(`${this.apiUrl}/ResetPassword`, data, {
+      responseType: 'text',
+    });
   }
 
   ChangePassword(data: any) {
@@ -49,46 +59,34 @@ export class AdminloginService {
   }
 
   getToken() {
-    return localStorage.getItem("access_Token");
+    return localStorage.getItem('access_Token');
   }
-
   setToken(token: string) {
-    localStorage.setItem("access_Token", token);
+    localStorage.setItem('access_Token', token);
   }
 
   isLoggedIn(): boolean {
-    return localStorage.getItem("access_Token") ? true : false;
+    return localStorage.getItem('access_Token') ? true : false;
   }
 
   LoggedOut() {
-    localStorage.removeItem("access_Token");
+    localStorage.removeItem('access_Token');
   }
 
   public getCurrentUser() {
     return this.currentUser.asObservable();
   }
-
   public setCurrentUser(userDetail: any) {
     return this.currentUser.next(userDetail);
   }
-
-  decodedToken(): any {
+  decodedToken() {
     const token = this.getToken();
-    if (token) {
-      return this.jwtHelperService.decodeToken(token);
-    }
-    return null;
+    return this.jwthelperService.decodeToken(token);
   }
-
   getUserFullName() {
-    const decodedToken = this.decodedToken();
-    if (decodedToken) {
-      return decodedToken.fullName;
-    }
-    return null;
+    if (this.userPayLoad) return this.userPayLoad.fullName;
   }
-
   getUserDetail() {
-    return this.decodedToken();
+    if (this.userPayLoad) return this.userPayLoad;
   }
 }

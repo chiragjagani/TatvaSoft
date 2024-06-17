@@ -29,14 +29,6 @@
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true,
-    "enableIvy": true,
-    "allowJs": true,
-    "paths": {
-      "@cloudinary/angular-5.x": ["node_modules/@cloudinary/angular-5.x"]
-    }
-    
-  },
-  "exclude": ["node_modules/@cloudinary/angular-5.x"]
-  
+    "strictTemplates": true
+  }
 }
